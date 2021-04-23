@@ -20,6 +20,8 @@ namespace MyTrunfo.Enums
                     return "Comprimento";
                 case ECategory.MaxSpeed:
                     return "Velocidade Máxima";
+                case ECategory.Price:
+                    return "Preço";
                 default:
                     return String.Empty;
             }

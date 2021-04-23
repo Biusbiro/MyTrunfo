@@ -116,7 +116,7 @@ namespace MyTrunfo
             AllCards.Add(new Car() { Id = 17, Code = "B1", Name = "Gol G4", Image = Resources.Gol_G4, Brand = "Volkswagen", Country = ECountry.Germany, Consumption = 10.8m, HorsePower = 71, Length = 3931, MaxSpeed = 168, Displacements = 1000, Price = 16 });
             AllCards.Add(new Car() { Id = 18, Code = "A3", Name = "Hilux", Image = Resources.Hilux, Brand = "Toyota", Country = ECountry.Japan, Consumption = 9m, HorsePower = 163, Length = 5325, MaxSpeed = 180, Displacements = 2700, Price = 145 });
             AllCards.Add(new Car() { Id = 19, Code = "D5", Name = "Ka", Image = Resources.Ka, Brand = "Ford", Country = ECountry.USA, Consumption = 9.6m, HorsePower = 73, Length = 3836, MaxSpeed = 160, Displacements = 1000, Price = 15 });
-            AllCards.Add(new Car() { Id = 20, Code = "A0", Name = "Kombi", Image = Resources.Kombi, Brand = "Volkswagen", Country = ECountry.Germany, Consumption = 8.4m, HorsePower = 80, Length = 4505, MaxSpeed = 130, Displacements = 1390, Price = 27 });
+            AllCards.Add(new Car() { Id = 20, Code = "C0", Name = "Kombi", Image = Resources.Kombi, Brand = "Volkswagen", Country = ECountry.Germany, Consumption = 8.4m, HorsePower = 80, Length = 4505, MaxSpeed = 130, Displacements = 1390, Price = 27 });
             AllCards.Add(new Car() { Id = 21, Code = "D2", Name = "L200", Image = Resources.L200, Brand = "Mitsubishi", Country = ECountry.Japan, Consumption = 13.2m, HorsePower = 190, Length = 5280, MaxSpeed = 179, Displacements = 2400, Price = 172 });
             AllCards.Add(new Car() { Id = 22, Code = "B9", Name = "Logan", Image = Resources.Logan, Brand = "Renault", Country = ECountry.France, Consumption = 10.2m, HorsePower = 82, Length = 4349, MaxSpeed = 164, Displacements = 1000, Price = 63 });
             AllCards.Add(new Car() { Id = 23, Code = "B6", Name = "Master", Image = Resources.Master, Brand = "Renault", Country = ECountry.France, Consumption = 8.1m, HorsePower = 130, Length = 5642, MaxSpeed = 145, Displacements = 2300, Price = 173 });
@@ -134,7 +134,7 @@ namespace MyTrunfo
             AllCards.Add(new Car() { Id = 35, Code = "C6", Name = "Tiguan", Image = Resources.Tiguan, Brand = "Volkswagen", Country = ECountry.Germany, Consumption = 9.6m, HorsePower = 220, Length = 4705, MaxSpeed = 223, Displacements = 2000, Price = 225 });
             AllCards.Add(new Car() { Id = 36, Code = "D7", Name = "Toro", Image = Resources.Toro, Brand = "Fiat", Country = ECountry.Italy, Consumption = 11.2m, HorsePower = 139, Length = 4915, MaxSpeed = 181, Displacements = 1700, Price = 100 });
             AllCards.Add(new Car() { Id = 37, Code = "C8", Name = "Tucson", Image = Resources.Tucson, Brand = "Hyundai", Country = ECountry.SouthCorea, Consumption = 15.1m, HorsePower = 143, Length = 4325, MaxSpeed = 180, Displacements = 2000, Price = 155 });
-            AllCards.Add(new Car() { Id = 38, Code = "C0", Name = "Uno", Image = Resources.Uno, Brand = "Fiat", Country = ECountry.Italy, Consumption = 8.5m, HorsePower = 57, Length = 3644, MaxSpeed = 151, Displacements = 1000, Price = 9 });
+            AllCards.Add(new Car() { Id = 38, Code = "A0", Name = "Uno", Image = Resources.Uno, Brand = "Fiat", Country = ECountry.Italy, Consumption = 8.5m, HorsePower = 57, Length = 3644, MaxSpeed = 151, Displacements = 1000, Price = 9 });
             AllCards.Add(new Car() { Id = 39, Code = "C5", Name = "Vectra", Image = Resources.Vectra, Brand = "Chevrolet", Country = ECountry.USA, Consumption = 8.2m, HorsePower = 123, Length = 4495, MaxSpeed = 195, Displacements = 2198, Price = 15 });
             AllCards.Add(new Car() { Id = 40, Code = "D4", Name = "Zafira", Image = Resources.Zafira, Brand = "Chevrolet", Country = ECountry.USA, Consumption = 9.4m, HorsePower = 140, Length = 4334, MaxSpeed = 181, Displacements = 2000, Price = 30 });
         }
@@ -282,16 +282,22 @@ namespace MyTrunfo
 
         public void Compare(ECategory category)
         {
-            if (CurrentPlayer == EPlayer.Player2 )
-                MessageBox.Show("Oponente escolheu " + EnumsToString.ToString(category));
-
-            TurnCard(EPlayer.Player2);
-            var winner = EPlayer.Tied;
             var player1CardActive = Player1Cards.FirstOrDefault();
             var player2CardActive = Player2Cards.FirstOrDefault();
+
+            var winner = CheckTrunfo(player1CardActive, player2CardActive);
+
+            if (winner == EPlayer.Tied)
+            {
+                if (CurrentPlayer == EPlayer.Player2 )
+                    MessageBox.Show("Oponente escolheu " + EnumsToString.ToString(category));
+
+                winner = DetermineWinner(category, player1CardActive, player2CardActive);
+            }
+
+            TurnCard(EPlayer.Player2);
             Player1Cards.Remove(Player1Cards.FirstOrDefault());
             Player2Cards.Remove(Player2Cards.FirstOrDefault());
-            winner = DetermineWinner(category, player1CardActive, player2CardActive);
             CurrentWinner = winner;
             CurrentPlayer = CurrentWinner == EPlayer.Tied 
                 ? CurrentPlayer == EPlayer.Player1 
@@ -308,6 +314,28 @@ namespace MyTrunfo
             ClearLabels();
             TurnCard(EPlayer.Player2);
             StartRound();
+        }
+
+        private EPlayer CheckTrunfo(Car player1CardActive, Car player2CardActive)
+        {
+            var player1Trunfo = player1CardActive.Code.Equals("A0");
+            var player2Trunfo = player2CardActive.Code.Equals("A0");
+            var player1DisableVersusTrunfo = !player1CardActive.Code.Contains("A");
+            var player2DisableVersusTrunfo = !player2CardActive.Code.Contains("A");
+
+            if (player1Trunfo && player2DisableVersusTrunfo)
+            {
+                MessageBox.Show("Super Trunfo Vence");
+                return EPlayer.Player1;
+            }
+
+            if (player2Trunfo && player1DisableVersusTrunfo)
+            {
+                MessageBox.Show("Super Trunfo Vence");
+                return EPlayer.Player2;
+            }
+
+            return EPlayer.Tied;
         }
 
         private void CheckFinish()
@@ -371,6 +399,7 @@ namespace MyTrunfo
         private static EPlayer DetermineWinner(ECategory category, Car player1CardActive, Car player2CardActive)
         {
             var winner = EPlayer.Tied;
+
             switch (category)
             {
                 case ECategory.Consumption:
